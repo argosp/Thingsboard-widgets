@@ -22,7 +22,7 @@ from shapely.geometry import Point, Polygon
 import pprint
 import json
 
-broker="127.0.0.1"
+broker="192.116.82.80"
 topic_pub='v1/devices/me/telemetry'
 
 attr_pub ='v1/devices/me/attributes'
@@ -45,7 +45,7 @@ class Device(object):
 		self.client.username_pw_set(name)
 		self.client.on_message=on_message  
 		self.client.on_connect= on_connect 
-		self.client.connect('127.0.0.1', 1883, 1)
+		self.client.connect('192.116.82.80', 1883, 1)
 		self.client.loop_start()
 
 	def pub(self): 
