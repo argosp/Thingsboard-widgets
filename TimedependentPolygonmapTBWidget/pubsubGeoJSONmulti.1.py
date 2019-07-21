@@ -50,46 +50,50 @@ class Device(object):
         self.client.connect('192.116.82.80', 1883, 1)
         self.client.loop_start()
 
-    def pub(self):
+    def oneFrame(self):
 
-        props = {"A": [], "B": [], "C": []}
+        R1 = random.randrange(3, 20)/100.
+        R2 = R1 + random.randrange(3, 20)/100.
+        R3 = R2 + random.randrange(3, 20)/100.
+
+        angle = numpy.arange(0, 2*numpy.pi, 0.05)
+        baseX = 35
+        baseY = 32.5
+
+        X1 = baseX + R1*numpy.sin(angle)
+        Y1 = baseY + R1*numpy.cos(angle)
+        A1 = Polygon([[i[0], i[1]] for i in zip(X1, Y1)])
+        A1s = str([[i[0], i[1]] for i in zip(X1, Y1)])
+
+        X2 = baseX + R2*numpy.sin(angle)
+        Y2 = baseY + R2*numpy.cos(angle)
+        A2 = Polygon([[i[0], i[1]] for i in zip(X2, Y2)])
+
+        X3 = baseX + R3*numpy.sin(angle)
+        Y3 = baseY + R3*numpy.cos(angle)
+        A3 = Polygon([[i[0], i[1]] for i in zip(X3, Y3)])
+
+        G = geopandas.GeoDataFrame({'geometry': [A1, A2, A3]})
+
+        totalD = G.diff()
+        totalD.iloc[0] = G.iloc[0]
+
+        jsonL = []
+        for name, i in zip(["A", "B", "C"], range(totalD.size)):
+            jsonL.append('"%s" : "%s"' %
+                         (name, totalD.iloc[i:i+1].to_json().replace('"', "'")))
+
+        return '{%s}' % ",".join(jsonL)
+
+    def timeFrames(self):
+        jsonL = []
         for idx in range(3):
-            R1 = random.randrange(3, 20)/100.
-            R2 = R1 + random.randrange(3, 20)/100.
-            R3 = R2 + random.randrange(3, 20)/100.
+            jsonL.append('{"name": "%s", "value": %s}' % (idx, self.oneFrame()))
 
-            angle = numpy.arange(0, 2*numpy.pi, 0.5)
-            baseX = 35
-            baseY = 32.5
+        return '[%s]' % ",".join(jsonL)
 
-            X1 = baseX + R1*numpy.sin(angle)
-            Y1 = baseY + R1*numpy.cos(angle)
-            A1 = Polygon([[i[0], i[1]] for i in zip(X1, Y1)])
-            A1s = str([[i[0], i[1]] for i in zip(X1, Y1)])
-
-            X2 = baseX + R2*numpy.sin(angle)
-            Y2 = baseY + R2*numpy.cos(angle)
-            A2 = Polygon([[i[0], i[1]] for i in zip(X2, Y2)])
-
-            X3 = baseX + R3*numpy.sin(angle)
-            Y3 = baseY + R3*numpy.cos(angle)
-            A3 = Polygon([[i[0], i[1]] for i in zip(X3, Y3)])
-
-            G = geopandas.GeoDataFrame({'geometry': [A1, A2, A3]})
-
-            totalD = G.diff()
-            totalD.iloc[0] = G.iloc[0]
-
-            for name, i in zip(["A", "B", "C"], range(totalD.size)):
-                poly = totalD.iloc[i:i+1].to_json().replace('"', "'")
-                props[name].append('{"index":"%s", "name":"+%s", "value":"%s"}' % (idx, idx, poly))
-
-        textprops = []
-        for name in props:
-            text = '[%s]' % ",".join(props[name])
-            textprops.append('"%s": %s' % (name, text))
-
-        msg = '{%s}' % ",".join(textprops)
+    def pub(self):
+        msg = self.timeFrames()
         # print(msg)
         # exit()
         self.client.publish(topic_pub, msg)
