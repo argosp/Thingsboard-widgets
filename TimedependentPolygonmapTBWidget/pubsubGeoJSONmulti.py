@@ -82,12 +82,17 @@ class Device(object):
 
             for name, i in zip(["A", "B", "C"], range(totalD.size)):
                 poly = totalD.iloc[i:i+1].to_json().replace('"', "'")
-                props[name].append('{"index":"%s", "name":"+%s", "value":"%s"}' % (idx, idx, poly))
+                sindex = idx
+                polyindex = "{'index':'%s', 'name':'%s', 'value':%s}" % (idx, sindex, poly)
+                props[name].append(polyindex)
 
         textprops = []
         for name in props:
+            # proptext = props[name].to_json().replace('"', "'")
+            # textprops.append('"%s": %s' % (name, proptext))
+
             text = '[%s]' % ",".join(props[name])
-            textprops.append('"%s": %s' % (name, text))
+            textprops.append('"%s": "%s"' % (name, text))
 
         msg = '{%s}' % ",".join(textprops)
         # print(msg)
