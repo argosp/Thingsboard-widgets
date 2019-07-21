@@ -106,4 +106,4 @@ DeviceList = [Device(x) for x in deviceName]
 while True:
     for d in DeviceList:
         d.pub()
-    sleep(1)
+    sleep(5)
