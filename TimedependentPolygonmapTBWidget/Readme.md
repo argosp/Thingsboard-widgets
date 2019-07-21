@@ -18,8 +18,10 @@ To setup the example:
 
 Alternately to anaconda:
 
+```
 cd TimedependentPolygonmapTBWidget
 python3 -m venv .env
 source .env/bin/activate
 pip install paho-mqtt numpy geopandas
 python -m pubsubGeoJSON.py
+```
