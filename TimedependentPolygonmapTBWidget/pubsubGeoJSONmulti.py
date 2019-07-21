@@ -53,12 +53,12 @@ class Device(object):
     def pub(self):
 
         props = {"A": [], "B": [], "C": []}
-        for idx in range(3):
+        for idx in range(10):
             R1 = random.randrange(3, 20)/100.
             R2 = R1 + random.randrange(3, 20)/100.
             R3 = R2 + random.randrange(3, 20)/100.
 
-            angle = numpy.arange(0, 2*numpy.pi, 0.1)
+            angle = numpy.arange(0, 2*numpy.pi, 0.8)
             baseX = 35
             baseY = 32.5
 
