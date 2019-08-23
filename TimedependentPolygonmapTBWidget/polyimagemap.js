@@ -6,7 +6,7 @@ self.onInit = function () {
         self.mapleaflet = self.ctx.map.map.map;
         self.bounds = self.ctx.map.map.imageOverlay._bounds;
         window.TimeseriesPolygonImageMapSelf = self;
-        // self.onResize();
+        self.onResize();
     }, 10);
 };
 
@@ -14,7 +14,8 @@ self.resizeMap = function () {
     if (!self.mapleaflet || !self.mapleaflet._container){
         return;
     }
-    // self.mapleaflet._container.style.height = (self.ctx.height - 30) + "px";
+    self.mapleaflet._container.style.height = (self.ctx.height - 30) + "px";
+    self.mapleaflet.invalidateSize();
 };
 
 self.clearPolygons = function () {
