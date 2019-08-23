@@ -4,20 +4,23 @@ self.onInit = function () {
     self.posFunc = self.ctx.map.map.posFunction;
     setTimeout(() => {
         self.mapleaflet = self.ctx.map.map.map;
+        self.bounds = self.ctx.map.map.imageOverlay._bounds;
         window.TimeseriesPolygonImageMapSelf = self;
         // self.onResize();
     }, 10);
 };
 
 self.resizeMap = function () {
-    if (!self.mapleaflet || !self.mapleaflet._container)
+    if (!self.mapleaflet || !self.mapleaflet._container){
         return;
-    self.mapleaflet._container.style.height = (self.ctx.height - 30) + "px";
+    }
+    // self.mapleaflet._container.style.height = (self.ctx.height - 30) + "px";
 };
 
 self.clearPolygons = function () {
-    if (!self.mapleaflet || !self.mapleaflet._layers)
+    if (!self.mapleaflet || !self.mapleaflet._layers){
         return;
+    }
     for (var i in self.mapleaflet._layers) {
         if (self.mapleaflet._layers[i]._path !== undefined) {
             try {
@@ -39,9 +42,8 @@ function lerp(a, b, f) {
 }
 
 self.posFuncGeoJson = function (geojson) {
-    var bounds = self.ctx.map.map.imageOverlay._bounds;
-    var ne = bounds._northEast,
-        sw = bounds._southWest;
+    var ne = self.bounds._northEast,
+        sw = self.bounds._southWest;
     geojson.forEach((g) => {
         g.geometry.coordinates = g.geometry.coordinates
             .map(shape => {
