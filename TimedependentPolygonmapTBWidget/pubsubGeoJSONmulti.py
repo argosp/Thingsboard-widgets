@@ -59,8 +59,8 @@ class Device(object):
             R3 = R2 + random.randrange(3, 20)/100.
 
             angle = numpy.arange(0, 2*numpy.pi, 0.8)
-            baseX = 35
-            baseY = 32.5
+            baseX = 155380
+            baseY = 563830
 
             X1 = baseX + R1*numpy.sin(angle)
             Y1 = baseY + R1*numpy.cos(angle)
