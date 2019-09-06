@@ -59,8 +59,13 @@ class Device(object):
             R3 = R2 + random.randrange(3, 20)*4
 
             angle = numpy.arange(0, 2*numpy.pi, 0.8)
-            baseX = 155380
-            baseY = 563830
+            image_bounds = {'mn': {'x': 154994, 'y': 563428}, 'mx': {'x': 155784, 'y': 564085}}
+            baseX = (image_bounds['mn']['x'] + image_bounds['mx']['x'])/2
+            baseY = (image_bounds['mn']['y'] + image_bounds['mx']['y'])/2
+            # baseX = 154994 # min x
+            # baseY = 563428 # min y
+            # baseX = 155784 # max x
+            # baseY = 564085 # max y
 
             X1 = baseX + R1*numpy.sin(angle)
             Y1 = baseY + R1*numpy.cos(angle)
