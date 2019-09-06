@@ -60,8 +60,8 @@ self.posFuncGeoJson = function (geojson) {
 };
 
 self.showPolygons = function (parsed, color) {
-    geojsonFeature = self.posFuncGeoJson(parsed.features);
     try {
+        var geojsonFeature = self.posFuncGeoJson(parsed.features);
         L.geoJSON(geojsonFeature, {
             style: { "color": color, "opacity": 0.8 }
         }).addTo(self.mapleaflet);
