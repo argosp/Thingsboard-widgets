@@ -4,7 +4,6 @@ self.onInit = function () {
     self.posFunc = self.ctx.map.map.posFunction;
     setTimeout(() => {
         self.mapleaflet = self.ctx.map.map.map;
-        self.bounds = self.ctx.map.map.imageOverlay._bounds;
         window.TimeseriesPolygonImageMapSelf = self;
         self.onResize();
     }, 10);
@@ -43,6 +42,7 @@ function lerp(a, b, f) {
 }
 
 self.posFuncGeoJson = function (geojson) {
+    self.bounds = self.ctx.map.map.imageOverlay._bounds;
     var ne = self.bounds._northEast,
         sw = self.bounds._southWest;
     geojson.forEach((g) => {
