@@ -138,12 +138,15 @@ self.setNext = function () {
 self.Play = function () {
     self.playing = !self.playing;
     $('#PlayButton').text(self.playing ? 'Stop' : 'Play');
-    clearInterval(self.playInterval);
     if (self.playing) {
         var delay = self.ctx.settings.playDelay || 500;
-        self.playInterval = setInterval((function () {
+        var cont = (function() {
             self.setNext();
-        }).bind(this), delay);
+            if (self.playing) {
+                setTimeout(cont, delay);
+            }
+        }).bind(this);
+        cont();
     }
 };
 
