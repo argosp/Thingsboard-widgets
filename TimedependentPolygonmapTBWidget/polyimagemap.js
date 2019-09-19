@@ -6,8 +6,30 @@ self.onInit = function () {
         self.mapleaflet = self.ctx.map.map.map;
         window.TimeseriesPolygonImageMapSelf = self;
         self.onResize();
+
+        var arrowImage = self.ctx.widgetConfig.settings.markerImages[4];
+        self.arrowIcon = L.icon({
+            iconUrl: arrowImage,
+            iconSize: [10, 10],
+            // iconAnchor: [5, 5]
+        });
+        // var marker = L.marker([-50,50], {
+        //     icon: icon
+        // }).addTo(self.mapleaflet);
+        // let a = 50;
+        // function rot() {
+        //     a += 10;
+        //     setMarkerOrientation(marker, a )
+        //     setTimeout(rot, 200);
+        // }
+        // rot();
     }, 10);
 };
+
+function setMarkerOrientation(marker, angle) {
+    var prevTrans = marker._icon.style.WebkitTransform.replace(/ rotate\(\d+deg\)/g, '');
+    marker._icon.style.WebkitTransform = prevTrans + ' rotate(' + angle + 'deg)';
+}
 
 self.resizeMap = function () {
     if (!self.mapleaflet || !self.mapleaflet._container){
@@ -116,11 +138,18 @@ self.onDataUpdated = function () {
     // console.log(self.ctx.data);
     var valueName;
     for (i = 0; i < self.ctx.data.length; i++) {
-        var poly = findCurrFrame(parsed[i], index);
-        if (!poly) continue;
-        valueName = poly.name;
-        var color = self.ctx.data[i].dataKey.color;
-        self.showPolygons(poly.value, color);
+        if (self.ctx.data[i].dataSource && self.ctx.data[i].dataSource.alias === 'wind') {
+            var marker = L.marker([self.ctx.data[i].longtitude, self.ctx.data[i].latitude], {
+                icon: self.arrowIcon
+            }).addTo(self.mapleaflet);
+            setMarkerOrientation(marker, self.ctx.data[i].angle);
+        } else {
+            var poly = findCurrFrame(parsed[i], index);
+            if (!poly) continue;
+            valueName = poly.name;
+            var color = self.ctx.data[i].dataKey.color;
+            self.showPolygons(poly.value, color);
+        }
     }
     $('#TimeFrameLabel')[0].value = valueName ? valueName : '';
     self.ctx.map.update();
