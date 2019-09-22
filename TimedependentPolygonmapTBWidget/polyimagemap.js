@@ -94,29 +94,6 @@ self.showPolygons = function (parsed, color) {
     }
 };
 
-self.updateTimeRange = function (parsed) {
-    var maxRange = 0;
-    for (i = 0; i < parsed.length; i++) {
-        for (j = 0; j < parsed[i].length; j++) {
-            if (parsed[i][j].index > maxRange) {
-                maxRange = parsed[i][j].index;
-            }
-        }
-    }
-    $('#TimeFrame')[0].max = maxRange;
-};
-
-function findCurrFrame(frames, index) {
-    if (frames instanceof Array) {
-        for (var i = 0; i < frames.length; ++i) {
-            if (parseInt(frames[i].index) === index) {
-                return frames[i];
-            }
-        }
-    }
-    return undefined;
-}
-
 self.getCurrIndex = function () {
     return parseInt($('#TimeFrame')[0].value);
 };
@@ -126,35 +103,40 @@ self.setCurrIndex = function (val) {
     self.onDataUpdated();
 };
 
+self.getPolygonFrames = function() {
+    const jsons = self.ctx.data.filter(prop => typeof prop.data[0][1] === "string");
+    var maxRange = 0;
+    const polygonFrames = jsons.map(prop => {
+        const frames = parseJson(prop.data[0][1]);
+        maxRange = Math.max(Math.max.apply(this, frames.map(b => b.index)));
+        return {frames: frames, color: prop.dataKey.color};
+    });
+    return [polygonFrames, maxRange];
+};
+
+self.showPolygonFrame = function(polygonFrames, index) {
+    let valueName = '';
+    self.clearPolygons();
+    polygonFrames.forEach(polys => {
+        const poly = polys.frames.find(frame => parseInt(frame.index) === index);
+        if (poly) {
+            valueName = poly.name;
+            self.showPolygons(poly.value, polys.color);
+        }
+    });
+    self.ctx.map.update();
+    return valueName ? valueName : '';
+};
+
 self.onDataUpdated = function () {
-    var parsed;
     try {
-        parsed = self.ctx.data.map(prop => parseJson(prop.data[0][1]));
+        [polygonFrames, maxRange] = self.getPolygonFrames();
+        $('#TimeFrame')[0].max = maxRange;
+        $('#TimeFrameLabel')[0].value = self.showPolygonFrame(polygonFrames, self.getCurrIndex());
     } catch (err) {
         // console.log("JSON error:", self.ctx.data, err);
-        return;
+        // return;
     }
-    self.updateTimeRange(parsed);
-    var index = self.getCurrIndex();
-    self.clearPolygons();
-    // console.log(self.ctx.data);
-    var valueName;
-    for (i = 0; i < self.ctx.data.length; i++) {
-        if (self.ctx.data[i].dataSource && self.ctx.data[i].dataSource.alias === 'wind') {
-            var marker = L.marker([self.ctx.data[i].longtitude, self.ctx.data[i].latitude], {
-                icon: self.arrowIcon
-            }).addTo(self.mapleaflet);
-            setMarkerOrientation(marker, self.ctx.data[i].angle);
-        } else {
-            var poly = findCurrFrame(parsed[i], index);
-            if (!poly) continue;
-            valueName = poly.name;
-            var color = self.ctx.data[i].dataKey.color;
-            self.showPolygons(poly.value, color);
-        }
-    }
-    $('#TimeFrameLabel')[0].value = valueName ? valueName : '';
-    self.ctx.map.update();
 };
 
 self.setNext = function () {
