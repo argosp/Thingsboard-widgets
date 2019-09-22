@@ -7,14 +7,16 @@ self.onInit = function () {
         window.TimeseriesPolygonImageMapSelf = self;
         self.onResize();
 
-        var arrowImage = self.ctx.widgetConfig.settings.markerImages[4];
-        self.arrowIcon = L.icon({
-            iconUrl: arrowImage,
-            iconSize: [10, 10],
-            // iconAnchor: [5, 5]
-        });
+        var markerImages = self.ctx.widgetConfig.settings.markerImages;
+        if (markerImages.length >= 4) {
+            self.arrowIcon = L.icon({
+                iconUrl: markerImages[4],
+                iconSize: [10, 10],
+                // iconAnchor: [5, 5]
+            });
+        }
         // var marker = L.marker([-50,50], {
-        //     icon: icon
+        //     icon: self.arrowIcon
         // }).addTo(self.mapleaflet);
         // let a = 50;
         // function rot() {
