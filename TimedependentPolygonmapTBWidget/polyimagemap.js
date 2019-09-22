@@ -11,26 +11,18 @@ self.onInit = function () {
         if (markerImages.length >= 4) {
             self.arrowIcon = L.icon({
                 iconUrl: markerImages[4],
-                iconSize: [10, 10],
+                iconSize: [20, 20],
                 // iconAnchor: [5, 5]
             });
         }
-        // var marker = L.marker([-50,50], {
-        //     icon: self.arrowIcon
-        // }).addTo(self.mapleaflet);
-        // let a = 50;
-        // function rot() {
-        //     a += 10;
-        //     setMarkerOrientation(marker, a )
-        //     setTimeout(rot, 200);
-        // }
-        // rot();
+        console.log(self);
     }, 10);
 };
 
-function setMarkerOrientation(marker, angle) {
+function rotateMarker(marker, angle) {
     var prevTrans = marker._icon.style.WebkitTransform.replace(/ rotate\(\d+deg\)/g, '');
     marker._icon.style.WebkitTransform = prevTrans + ' rotate(' + angle + 'deg)';
+    return marker;
 }
 
 self.resizeMap = function () {
@@ -65,20 +57,19 @@ function lerp(a, b, f) {
     return a + f * (b - a);
 }
 
+self.posOnMap = function(v) {
+    const bounds = self.ctx.map.map.imageOverlay._bounds;
+    var ne = bounds._northEast,
+        sw = bounds._southWest;
+    var pos = self.posFunc(v[0], v[1]);
+    pos.y = lerp(ne.lat, sw.lat, pos.y);
+    pos.x = lerp(sw.lng, ne.lng, pos.x);
+    return [pos.x, pos.y];
+};
+
 self.posFuncGeoJson = function (geojson) {
-    self.bounds = self.ctx.map.map.imageOverlay._bounds;
-    var ne = self.bounds._northEast,
-        sw = self.bounds._southWest;
     geojson.forEach((g) => {
-        g.geometry.coordinates = g.geometry.coordinates
-            .map(shape => {
-                return shape.map(v => {
-                    var pos = self.posFunc(v[0], v[1]);
-                    pos.y = lerp(ne.lat, sw.lat, pos.y);
-                    pos.x = lerp(sw.lng, ne.lng, pos.x);
-                    return [pos.x, pos.y];
-                });
-            });
+        g.geometry.coordinates = g.geometry.coordinates.map(shape => shape.map(self.posOnMap));
     });
     return geojson;
 };
@@ -104,7 +95,7 @@ self.setCurrIndex = function (val) {
 };
 
 self.getPolygonFrames = function() {
-    const jsons = self.ctx.data.filter(prop => typeof prop.data[0][1] === "string");
+    const jsons = self.ctx.data.filter(prop => prop.data.length > 0 && typeof prop.data[0][1] === "string");
     var maxRange = 0;
     const polygonFrames = jsons.map(prop => {
         const frames = parseJson(prop.data[0][1]);
@@ -128,15 +119,42 @@ self.showPolygonFrame = function(polygonFrames, index) {
     return valueName ? valueName : '';
 };
 
+self.getWindSensors = function() {
+    // console.log(self.ctx.data);
+    const nonJsons = self.ctx.data.filter(prop => prop.data.length > 0 && typeof prop.data[0][1] !== "string");
+    let sensors = {};
+    nonJsons.forEach(prop => {
+        if (!prop.datasource.entity) return;
+        const t = prop.datasource.entity.createdTime;
+        sensors[t] = sensors[t] || {};
+        const kind = prop.dataKey.name;
+        sensors[t][kind] = prop.data[0][1];
+    });
+    return Object.values(sensors);
+};
+
 self.onDataUpdated = function () {
     try {
+        const index = self.getCurrIndex();
         [polygonFrames, maxRange] = self.getPolygonFrames();
         $('#TimeFrame')[0].max = maxRange;
-        $('#TimeFrameLabel')[0].value = self.showPolygonFrame(polygonFrames, self.getCurrIndex());
+        $('#TimeFrameLabel')[0].value = self.showPolygonFrame(polygonFrames, index);
     } catch (err) {
         // console.log("JSON error:", self.ctx.data, err);
         // return;
     }
+
+    const sensors = self.getWindSensors();
+    sensors.forEach(s => {
+        if (!s.latitude || !s.longitude) return;
+        const pos = self.posOnMap([s.latitude, s.longitude]);
+        var marker = L.marker([pos[1], pos[0]], {
+            icon: self.arrowIcon
+        }).addTo(self.mapleaflet);
+        if (s.wind_dir === undefined) return;
+        rotateMarker(marker, s.wind_dir);
+    })
+    // console.log(sensors);
 };
 
 self.setNext = function () {
