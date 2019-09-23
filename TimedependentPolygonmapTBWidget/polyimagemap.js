@@ -7,20 +7,9 @@ self.onInit = function () {
         window.TimeseriesPolygonImageMapSelf = self;
         self.onResize();
 
-        self.arrowIcon = L.icon({
-            iconUrl: self.ctx.settings.arrowImageUrl,
-            iconSize: [20, 20],
-        });
-
         console.log(self);
     }, 10);
 };
-
-function rotateMarker(marker, angle) {
-    var prevTrans = marker._icon.style.WebkitTransform.replace(/ rotate\(\d+deg\)/g, '');
-    marker._icon.style.WebkitTransform = prevTrans + ' rotate(' + angle + 'deg)';
-    return marker;
-}
 
 self.resizeMap = function () {
     if (!self.mapleaflet || !self.mapleaflet._container){
@@ -130,16 +119,24 @@ self.getDirectionTelemetry = function() {
 };
 
 self.showDirectionMarker = function(s) {
-    const keyNameDir = self.ctx.settings.keyNameDir || 'wind_dir';
-    if (!s.latitude || !s.longitude || s[keyNameDir] === undefined) return undefined;
+    if (!s.latitude || !s.longitude) return undefined;
+    const dir = s[self.ctx.settings.keyNameDir];
+    if (dir === undefined) return undefined;
+    let power = s[self.ctx.settings.keyNamePower];
+    if (power === undefined) power = 10;
+    const powerSize = parseFloat(power) * self.ctx.settings.ArrowSizeAt10 / 10;
 
     const pos = self.posOnMap([s.latitude, s.longitude]);
     var marker = L.marker([pos[1], pos[0]], {
-        icon: self.arrowIcon
+        icon: L.icon({
+            iconUrl: self.ctx.settings.arrowImageUrl,
+            iconSize: [powerSize, powerSize],
+        })
     }).addTo(self.mapleaflet);
 
+    var prevTrans = marker._icon.style.WebkitTransform.replace(/ rotate\(\d+deg\)/g, '');
+    marker._icon.style.WebkitTransform = prevTrans + ' rotate(' + dir + 'deg)';
     marker._icon.style.WebkitTransformOrigin = 'center';
-    rotateMarker(marker, s[keyNameDir]);
 
     return marker;
 };
@@ -174,13 +171,12 @@ self.Play = function () {
     self.playing = !self.playing;
     $('#PlayButton').text(self.playing ? 'Stop' : 'Play');
     if (self.playing) {
-        var delay = self.ctx.settings.playDelay || 500;
-        var cont = (function() {
+        var cont = () => {
             self.setNext();
             if (self.playing) {
-                setTimeout(cont, delay);
+                setTimeout(cont, self.ctx.settings.playDelay);
             }
-        }).bind(this);
+        };
         cont();
     }
 };
@@ -196,6 +192,8 @@ self.getSettingsSchema = function () {
     tbScheme.form.unshift(
         "playDelay",
         "keyNameDir",
+        "keyNamePower",
+        "ArrowSizeAt10",
         {
             "key": "arrowImageUrl",
             "type": "image"
@@ -211,6 +209,16 @@ self.getSettingsSchema = function () {
                 "title": "Direction key name",
                 "type": "string",
                 "default": "wind_dir"
+            },
+            "keyNamePower": {
+                "title": "Power key name",
+                "type": "string",
+                "default": "wind_speed"
+            },
+            "ArrowSizeAt10": {
+                "title": "Arrow size in pixels when power/speed is 10",
+                "type": "number",
+                "default": 20
             },
             "arrowImageUrl": {
                 "title": "Arrow image",
