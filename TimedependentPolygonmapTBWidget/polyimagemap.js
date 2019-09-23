@@ -7,17 +7,14 @@ self.onInit = function () {
         window.TimeseriesPolygonImageMapSelf = self;
         self.onResize();
 
-        // var markimg = self.markerImage;
-        // var markerImages = self.ctx.widgetConfig.settings.markerImages;
-        // if (self.ctx.widgetConfig.settings.markerImages.length >= 4) {
-        //     markimg = self.ctx.widgetConfig.settings.markerImages[4];
-        // }
+        if (self.ctx.widgetConfig.settings.markerImages.length >= 4) {
+            self.markerImage = self.ctx.widgetConfig.settings.markerImages[4];
+        }
         self.arrowIcon = L.icon({
             iconUrl: self.markerImage,
             iconSize: [20, 20],
-            // iconAnchor: [5, 5]
         });
-        // }
+
         console.log(self);
     }, 10);
 };
@@ -122,18 +119,32 @@ self.showPolygonFrame = function(polygonFrames, index) {
     return valueName ? valueName : '';
 };
 
-self.getWindSensors = function() {
+self.getDirectionTelemetry = function() {
     // console.log(self.ctx.data);
     const nonJsons = self.ctx.data.filter(prop => prop.data.length > 0 && typeof prop.data[0][1] !== "string");
-    let sensors = {};
+    let ret = {};
     nonJsons.forEach(prop => {
         const t = prop.datasource.name;
-        sensors[t] = sensors[t] || {};
+        ret[t] = ret[t] || {};
         const kind = prop.dataKey.name;
-        sensors[t][kind] = prop.data[0][1];
+        ret[t][kind] = prop.data[0][1];
     });
-    return Object.values(sensors);
+    return Object.values(ret);
 };
+
+self.showDirectionMarker = function(s) {
+    if (!s.latitude || !s.longitude || s.wind_dir === undefined) return undefined;
+
+    const pos = self.posOnMap([s.latitude, s.longitude]);
+    var marker = L.marker([pos[1], pos[0]], {
+        icon: self.arrowIcon
+    }).addTo(self.mapleaflet);
+
+    marker._icon.style.WebkitTransformOrigin = 'center';
+    rotateMarker(marker, s.wind_dir);
+
+    return marker;
+}
 
 self.onDataUpdated = function () {
     try {
@@ -147,19 +158,9 @@ self.onDataUpdated = function () {
     }
 
     (self.windMarkers || []).forEach(m => m.removeFrom(self.mapleaflet));
-    self.windMarkers = [];
-    self.getWindSensors().forEach(s => {
-        if (!s.latitude || !s.longitude) return;
-        const pos = self.posOnMap([s.latitude, s.longitude]);
-        var marker = L.marker([pos[1], pos[0]], {
-            icon: self.arrowIcon
-        }).addTo(self.mapleaflet);
-        marker._icon.style.WebkitTransformOrigin = 'center';
-        self.windMarkers.push(marker);
-        if (s.wind_dir === undefined) return;
-        rotateMarker(marker, s.wind_dir);
-    })
-    // console.log(sensors);
+    const dirs = self.getDirectionTelemetry();
+    self.windMarkers = dirs.map(self.showDirectionMarker);
+    self.windMarkers = self.windMarkers.filter(a => a);
 };
 
 self.setNext = function () {
