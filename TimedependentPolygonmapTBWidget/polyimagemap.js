@@ -133,7 +133,8 @@ self.getDirectionTelemetry = function() {
 };
 
 self.showDirectionMarker = function(s) {
-    if (!s.latitude || !s.longitude || s.wind_dir === undefined) return undefined;
+    const keyNameDir = self.ctx.settings.keyNameDir || 'wind_dir';
+    if (!s.latitude || !s.longitude || s[keyNameDir] === undefined) return undefined;
 
     const pos = self.posOnMap([s.latitude, s.longitude]);
     var marker = L.marker([pos[1], pos[0]], {
@@ -141,10 +142,10 @@ self.showDirectionMarker = function(s) {
     }).addTo(self.mapleaflet);
 
     marker._icon.style.WebkitTransformOrigin = 'center';
-    rotateMarker(marker, s.wind_dir);
+    rotateMarker(marker, s[keyNameDir]);
 
     return marker;
-}
+};
 
 self.onDataUpdated = function () {
     try {
@@ -194,6 +195,23 @@ self.onResize = function () {
 
 self.getSettingsSchema = function () {
     var tbScheme = TbMapWidgetV2.settingsSchema('image-map');
+    // console.log(tbScheme);
+    tbScheme.form.unshift(
+        "playDelay",
+        "keyNameDir");
+    Object.assign(tbScheme.schema.properties,
+        {
+            "playDelay": {
+                "title": "Play Delay",
+                "type": "number",
+                "default": 500
+            },
+            "keyNameDir": {
+                "title": "Key Name Direction",
+                "type": "string",
+                "default": "wind_dir"
+            }
+        });
     return tbScheme;
 };
 self.getDataKeySettingsSchema = function () {
