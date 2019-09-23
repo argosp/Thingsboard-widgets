@@ -127,8 +127,7 @@ self.getWindSensors = function() {
     const nonJsons = self.ctx.data.filter(prop => prop.data.length > 0 && typeof prop.data[0][1] !== "string");
     let sensors = {};
     nonJsons.forEach(prop => {
-        if (!prop.datasource.entity) return;
-        const t = prop.datasource.entity.createdTime;
+        const t = prop.datasource.name;
         sensors[t] = sensors[t] || {};
         const kind = prop.dataKey.name;
         sensors[t][kind] = prop.data[0][1];
@@ -155,6 +154,7 @@ self.onDataUpdated = function () {
         var marker = L.marker([pos[1], pos[0]], {
             icon: self.arrowIcon
         }).addTo(self.mapleaflet);
+        marker._icon.style.WebkitTransformOrigin = 'center';
         self.windMarkers.push(marker);
         if (s.wind_dir === undefined) return;
         rotateMarker(marker, s.wind_dir);
