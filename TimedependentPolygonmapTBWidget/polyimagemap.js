@@ -147,13 +147,15 @@ self.onDataUpdated = function () {
         // return;
     }
 
-    const sensors = self.getWindSensors();
-    sensors.forEach(s => {
+    (self.windMarkers || []).forEach(m => m.removeFrom(self.mapleaflet));
+    self.windMarkers = [];
+    self.getWindSensors().forEach(s => {
         if (!s.latitude || !s.longitude) return;
         const pos = self.posOnMap([s.latitude, s.longitude]);
         var marker = L.marker([pos[1], pos[0]], {
             icon: self.arrowIcon
         }).addTo(self.mapleaflet);
+        self.windMarkers.push(marker);
         if (s.wind_dir === undefined) return;
         rotateMarker(marker, s.wind_dir);
     })
