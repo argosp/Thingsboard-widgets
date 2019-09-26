@@ -130,13 +130,11 @@ self.showDirectionMarker = function(s) {
     var marker = L.marker([pos[1], pos[0]], {
         icon: L.icon({
             iconUrl: self.ctx.settings.arrowImageUrl,
-            iconSize: [powerSize, powerSize],
-        })
+            iconSize: [powerSize, powerSize]
+        }),
+        rotationAngle: dir,
+        rotationOrigin: 'center'
     }).addTo(self.mapleaflet);
-
-    var prevTrans = marker._icon.style.WebkitTransform.replace(/ rotate\(\d+deg\)/g, '');
-    marker._icon.style.WebkitTransform = prevTrans + ' rotate(' + dir + 'deg)';
-    marker._icon.style.WebkitTransformOrigin = 'center';
 
     return marker;
 };
