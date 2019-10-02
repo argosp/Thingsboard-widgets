@@ -124,13 +124,13 @@ self.showDirectionMarker = function(s) {
     if (dir === undefined) return undefined;
     let power = s[self.ctx.settings.keyNamePower];
     if (power === undefined) power = 4;
-    const powerSize = parseFloat(power) * self.ctx.settings.ArrowSizeAt4 / 4;
+    const powerSize = parseFloat(power) * self.ctx.settings.ArrowLenAt4 / 4;
 
     const pos = self.posOnMap([s.latitude, s.longitude]);
     var marker = L.marker([pos[1], pos[0]], {
         icon: L.icon({
             iconUrl: self.ctx.settings.arrowImageUrl,
-            iconSize: [powerSize, powerSize]
+            iconSize: [powerSize, parseFloat(self.ctx.settings.ArrowWidth)]
         }),
         rotationAngle: dir,
         rotationOrigin: 'center'
@@ -191,7 +191,8 @@ self.getSettingsSchema = function () {
             "playDelay",
             "keyNameDir",
             "keyNamePower",
-            "ArrowSizeAt4",
+            "ArrowLenAt4",
+            "ArrowWidth",
             {
                 "key": "arrowImageUrl",
                 "type": "image"
@@ -214,8 +215,13 @@ self.getSettingsSchema = function () {
                 "type": "string",
                 "default": "wind_speed"
             },
-            "ArrowSizeAt4": {
-                "title": "Arrow size in pixels when power/speed is 4",
+            "ArrowLenAt4": {
+                "title": "Arrow length in pixels when power/speed is 4",
+                "type": "number",
+                "default": 40
+            },
+            "ArrowWidth": {
+                "title": "Arrow width in pixels",
                 "type": "number",
                 "default": 40
             },
