@@ -12,7 +12,7 @@ self.onInit = function () {
 };
 
 self.resizeMap = function () {
-    if (!self.mapleaflet || !self.mapleaflet._container){
+    if (!self.mapleaflet || !self.mapleaflet._container) {
         return;
     }
     self.mapleaflet._container.style.height = (self.ctx.height - 30) + "px";
@@ -20,7 +20,7 @@ self.resizeMap = function () {
 };
 
 self.clearPolygons = function () {
-    if (!self.mapleaflet || !self.mapleaflet._layers){
+    if (!self.mapleaflet || !self.mapleaflet._layers) {
         return;
     }
     for (var i in self.mapleaflet._layers) {
@@ -43,7 +43,7 @@ function lerp(a, b, f) {
     return a + f * (b - a);
 }
 
-self.posOnMap = function(v) {
+self.posOnMap = function (v) {
     const bounds = self.ctx.map.map.imageOverlay._bounds;
     var ne = bounds._northEast,
         sw = bounds._southWest;
@@ -80,18 +80,18 @@ self.setCurrIndex = function (val) {
     self.onDataUpdated();
 };
 
-self.getPolygonFrames = function() {
+self.getPolygonFrames = function () {
     const jsons = self.ctx.data.filter(prop => prop.data.length > 0 && typeof prop.data[0][1] === "string");
     var maxRange = 0;
     const polygonFrames = jsons.map(prop => {
         const frames = parseJson(prop.data[0][1]);
         maxRange = Math.max(Math.max.apply(this, frames.map(b => b.index)));
-        return {frames: frames, color: prop.dataKey.color};
+        return { frames: frames, color: prop.dataKey.color };
     });
     return [polygonFrames, maxRange];
 };
 
-self.showPolygonFrame = function(polygonFrames, index) {
+self.showPolygonFrame = function (polygonFrames, index) {
     let valueName = '';
     self.clearPolygons();
     polygonFrames.forEach(polys => {
@@ -105,7 +105,7 @@ self.showPolygonFrame = function(polygonFrames, index) {
     return valueName ? valueName : '';
 };
 
-self.getDirectionTelemetry = function() {
+self.getDirectionTelemetry = function () {
     // console.log(self.ctx.data);
     const nonJsons = self.ctx.data.filter(prop => prop.data.length > 0 && typeof prop.data[0][1] !== "string");
     let ret = {};
@@ -118,7 +118,7 @@ self.getDirectionTelemetry = function() {
     return Object.values(ret);
 };
 
-self.showDirectionMarker = function(s) {
+self.showDirectionMarker = function (s) {
     if (s.latitude === undefined || s.longitude === undefined) return undefined;
     const dir = s[self.ctx.settings.keyNameDir];
     if (dir === undefined) return undefined;
@@ -188,16 +188,16 @@ self.getSettingsSchema = function () {
     var tbScheme = JSON.parse(JSON.stringify(TbMapWidgetV2.settingsSchema('image-map')));
     // console.log(tbScheme);
     tbScheme.form.unshift(
-            "playDelay",
-            "keyNameDir",
-            "keyNamePower",
-            "ArrowLenAt4",
-            "ArrowWidth",
-            {
-                "key": "arrowImageUrl",
-                "type": "image"
-            }
-        );
+        "playDelay",
+        "keyNameDir",
+        "keyNamePower",
+        "ArrowLenAt4",
+        "ArrowWidth",
+        {
+            "key": "arrowImageUrl",
+            "type": "image"
+        }
+    );
     Object.assign(tbScheme.schema.properties,
         {
             "playDelay": {
@@ -243,7 +243,7 @@ self.actionSources = function () {
 
 self.onDestroy = function () { };
 
-(function() {
+(function () {
     // save these original methods before they are overwritten
     var proto_initIcon = L.Marker.prototype._initIcon;
     var proto_setPos = L.Marker.prototype._setPos;
@@ -256,15 +256,15 @@ self.onDestroy = function () { };
         if (iconAnchor) {
             iconAnchor = (iconAnchor[0] + 'px ' + iconAnchor[1] + 'px');
         }
-        this.options.rotationOrigin = this.options.rotationOrigin || iconAnchor || 'center bottom' ;
+        this.options.rotationOrigin = this.options.rotationOrigin || iconAnchor || 'center bottom';
         this.options.rotationAngle = this.options.rotationAngle || 0;
 
         // Ensure marker keeps rotated during dragging
-        this.on('drag', function(e) { e.target._applyRotation(); });
+        this.on('drag', function (e) { e.target._applyRotation(); });
     });
 
     L.Marker.include({
-        _initIcon: function() {
+        _initIcon: function () {
             proto_initIcon.call(this);
         },
 
@@ -274,29 +274,29 @@ self.onDestroy = function () { };
         },
 
         _applyRotation: function () {
-            if(this.options.rotationAngle) {
-                this._icon.style[L.DomUtil.TRANSFORM+'Origin'] = this.options.rotationOrigin;
+            if (this.options.rotationAngle) {
+                this._icon.style[L.DomUtil.TRANSFORM + 'Origin'] = this.options.rotationOrigin;
 
                 console.log(this.options.rotationAngle);
                 // if(oldIE) {
                 //     // for IE 9, use the 2D rotation
-                    // this._icon.style[L.DomUtil.TRANSFORM] = 'rotate(' + this.options.rotationAngle + 'deg)';
+                // this._icon.style[L.DomUtil.TRANSFORM] = 'rotate(' + this.options.rotationAngle + 'deg)';
                 // } else {
                 //     // for modern browsers, prefer the 3D accelerated version
-                    this._icon.style[L.DomUtil.TRANSFORM] =
-                        this._icon.style[L.DomUtil.TRANSFORM].replace(/ rotateZ\(\d+deg\)/g, '')
-                        + ' rotateZ(' + this.options.rotationAngle + 'deg)';
+                this._icon.style[L.DomUtil.TRANSFORM] =
+                    this._icon.style[L.DomUtil.TRANSFORM].replace(/ rotateZ\(\d+deg\)/g, '')
+                    + ' rotateZ(' + this.options.rotationAngle + 'deg)';
                 // }
             }
         },
 
-        setRotationAngle: function(angle) {
+        setRotationAngle: function (angle) {
             this.options.rotationAngle = angle;
             this.update();
             return this;
         },
 
-        setRotationOrigin: function(origin) {
+        setRotationOrigin: function (origin) {
             this.options.rotationOrigin = origin;
             this.update();
             return this;
