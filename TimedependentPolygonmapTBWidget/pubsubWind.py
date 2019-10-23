@@ -17,8 +17,6 @@ import paho.mqtt.client as mqtt
 from time import sleep
 import random
 import numpy
-import geopandas
-from shapely.geometry import Point, Polygon
 import pprint
 import json
 
@@ -53,7 +51,7 @@ class Device(object):
     def pub(self):
 
         props = {"wind_dir": random.randrange(0,360), "wind_speed": random.randrange(0,10)}
-        msg = '{%s}' % str(props)
+        msg = '%s' % str(props)
         self.client.publish(topic_pub, msg)
 
 
