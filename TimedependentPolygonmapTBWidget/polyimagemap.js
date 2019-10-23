@@ -119,7 +119,7 @@ self.getDirectionTelemetry = function() {
 };
 
 self.showDirectionMarker = function(s) {
-    if (!s.latitude || !s.longitude) return undefined;
+    if (s.latitude === undefined || s.longitude === undefined) return undefined;
     const dir = s[self.ctx.settings.keyNameDir];
     if (dir === undefined) return undefined;
     let power = s[self.ctx.settings.keyNamePower];
@@ -277,13 +277,16 @@ self.onDestroy = function () { };
             if(this.options.rotationAngle) {
                 this._icon.style[L.DomUtil.TRANSFORM+'Origin'] = this.options.rotationOrigin;
 
-                if(oldIE) {
-                    // for IE 9, use the 2D rotation
-                    this._icon.style[L.DomUtil.TRANSFORM] = 'rotate(' + this.options.rotationAngle + 'deg)';
-                } else {
-                    // for modern browsers, prefer the 3D accelerated version
-                    this._icon.style[L.DomUtil.TRANSFORM] += ' rotateZ(' + this.options.rotationAngle + 'deg)';
-                }
+                console.log(this.options.rotationAngle);
+                // if(oldIE) {
+                //     // for IE 9, use the 2D rotation
+                    // this._icon.style[L.DomUtil.TRANSFORM] = 'rotate(' + this.options.rotationAngle + 'deg)';
+                // } else {
+                //     // for modern browsers, prefer the 3D accelerated version
+                    this._icon.style[L.DomUtil.TRANSFORM] =
+                        this._icon.style[L.DomUtil.TRANSFORM].replace(/ rotateZ\(\d+deg\)/g, '')
+                        + ' rotateZ(' + this.options.rotationAngle + 'deg)';
+                // }
             }
         },
 

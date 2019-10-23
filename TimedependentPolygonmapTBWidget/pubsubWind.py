@@ -36,10 +36,10 @@ def on_message(client, userdata, message):
 def on_connect(client, userdata, flags, rc):
     print("Connected flags"+str(flags)+"result code " + str(rc))
 
-
 class Device(object):
 
     def __init__(self, name):
+        self.i = 10
         self.name = name
         self.client = mqtt.Client()
         self.client.username_pw_set(name)
@@ -50,7 +50,10 @@ class Device(object):
 
     def pub(self):
 
-        props = {"wind_dir": random.randrange(0,360), "wind_speed": random.randrange(0,10)}
+        props = {"wind_dir": self.i, "wind_speed": 10} # random.randrange(0,10)}
+        self.i = self.i + 10 % 360
+        # props = {"wind_dir": 90.0, "wind_speed": 10} # random.randrange(0,10)}
+        # props = {"wind_dir": random.randrange(0,360), "wind_speed": 10} # random.randrange(0,10)}
         msg = '%s' % str(props)
         self.client.publish(topic_pub, msg)
 
@@ -61,5 +64,5 @@ DeviceList = [Device(x) for x in deviceName]
 while True:
     for d in DeviceList:
         d.pub()
-    sleep(5)
+    sleep(1)
 
