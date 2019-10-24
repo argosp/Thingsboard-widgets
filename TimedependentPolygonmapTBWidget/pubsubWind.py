@@ -51,7 +51,7 @@ class Device(object):
     def pub(self):
 
         props = {"wind_dir": self.i, "wind_speed": 10} # random.randrange(0,10)}
-        self.i = self.i + 10 % 360
+        self.i = (self.i + 10) % 360
         # props = {"wind_dir": 90.0, "wind_speed": 10} # random.randrange(0,10)}
         # props = {"wind_dir": random.randrange(0,360), "wind_speed": 10} # random.randrange(0,10)}
         msg = '%s' % str(props)

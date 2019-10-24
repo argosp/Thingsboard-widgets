@@ -132,7 +132,7 @@ self.showDirectionMarker = function (s) {
             iconUrl: self.ctx.settings.arrowImageUrl,
             iconSize: [powerSize, parseFloat(self.ctx.settings.ArrowWidth)]
         }),
-        rotationAngle: dir,
+        rotationAngle: 360 - dir % 360, // counter clockwise
         rotationOrigin: 'center'
     }).addTo(self.mapleaflet);
 
@@ -277,7 +277,7 @@ self.onDestroy = function () { };
             if (this.options.rotationAngle) {
                 this._icon.style[L.DomUtil.TRANSFORM + 'Origin'] = this.options.rotationOrigin;
 
-                console.log(this.options.rotationAngle);
+                // console.log(this.options.rotationAngle);
                 // if(oldIE) {
                 //     // for IE 9, use the 2D rotation
                 // this._icon.style[L.DomUtil.TRANSFORM] = 'rotate(' + this.options.rotationAngle + 'deg)';
