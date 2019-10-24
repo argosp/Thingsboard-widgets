@@ -6,6 +6,7 @@ self.onInit = function () {
         self.mapleaflet = self.ctx.map.map.map;
         window.TimeseriesPolygonImageMapSelf = self;
         self.onResize();
+        self.onDataUpdated();
 
         console.log(self);
     }, 10);
