@@ -126,6 +126,7 @@ self.showDirectionMarker = function (s) {
     let power = s[self.ctx.settings.keyNamePower];
     if (power === undefined) power = 4;
     const powerSize = parseFloat(power) * self.ctx.settings.ArrowLenAt4 / 4;
+    if (/(Win32|Win64)/i.test(navigator.platform)) dir = (dir + 180) % 360;
 
     const pos = self.posOnMap([s.latitude, s.longitude]);
     var marker = L.marker([pos[1], pos[0]], {
