@@ -121,7 +121,7 @@ self.getDirectionTelemetry = function () {
 
 self.showDirectionMarker = function (s) {
     if (s.latitude === undefined || s.longitude === undefined) return undefined;
-    const dir = s[self.ctx.settings.keyNameDir];
+    let dir = s[self.ctx.settings.keyNameDir];
     if (dir === undefined) return undefined;
     let power = s[self.ctx.settings.keyNamePower];
     if (power === undefined) power = 4;
