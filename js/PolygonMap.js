@@ -1,4 +1,4 @@
-const widget = {};
+export default widget = {};
 
 widget.onInit = function() {
     widget.ctx.map = new TbMapWidgetV2('openstreet-map',        false, widget.ctx);
